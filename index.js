@@ -1,5 +1,7 @@
-const app = require('express');
+const express = require('express');
+const app = express()
 const { createTodo, updateTodo } = require('./types');
+const {todo} = require('db/db.js')
 
 
 
@@ -10,7 +12,7 @@ const { createTodo, updateTodo } = require('./types');
 
 app.use(express.json())
 //adding todo in app
-app.post('addTodo',(req,res)=>{
+app.post('/addTodo',async(req,res)=>{
 
     const createPayload = req.body;
     const parsedPayload = createTodo.safeParse(createPayload)
@@ -19,17 +21,37 @@ app.post('addTodo',(req,res)=>{
         res.status(411).json({
             message:"you have sent wrong request body"
         })
+        return;
     }
-    else{
-        //put it in mongo db
-    }
+
+    try{
+
+    await todo.create({
+        title: createPayload.title,
+        description:createPayload.description
+    })
+
+    res.status(200).json({
+        message: "todo created succesfully"
+    })
+}
+catch(error){
+    console.error(error);
+    res.status(500).json({
+        message: "internal server error"
+})
+}
 
 })
 
-app.put('updTodo',(req,res)=>{
+app.put('/updTodo',async(req,res)=>{
+
+
+
+    try {
 
     const updatePayload = req.body;
-    const parsedPayload = createTodo.safeParse(updateTodo)
+    const parsedPayload = updateTodo.safeParse(updatePayload)
 
     if(!parsedPayload.success){
         res.status(411).json({
@@ -38,14 +60,43 @@ app.put('updTodo',(req,res)=>{
 
         return;
     }
-    else{
-        //put it in mongo db
-    }
 
 
 
+    await todo.update({
+        _id: req.body.id
+    },{
+        completed:true
+    })
+    res.json({
+        msg: "to do created successfully"
+    })
+
+}
+
+catch(error){
+    console.error(error)
+    res.json({
+        msg:"internal server error"
+    })
+}
+   
 })
 
-app.get('getAllTodo',(req,res)=>{
+app.get('/getAllTodo',async(req,res)=>{
+
+    try{
+
+    const todoData = await todo.find()
+
+    res.status(200).json(todoData)
+
+    }
+    catch(error){
+        console.error(error);
+        res.status(500).json({
+            message: "internal server error"
+    })
+    }
 
 })
