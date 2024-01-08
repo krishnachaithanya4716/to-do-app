@@ -28,7 +28,8 @@ app.post('/addTodo',async(req,res)=>{
 
     await todo.create({
         title: createPayload.title,
-        description:createPayload.description
+        description:createPayload.description,
+        completed:false
     })
 
     res.status(200).json({
