@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express()
 const { createTodo, updateTodo } = require('./types');
-const {todo} = require('db/db.js')
+const {todo} = require('./db/db.js')
 
 
 
